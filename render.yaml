@@ -2,7 +2,7 @@ services:
   - type: web
     name: lacroix
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm ci && npm run build
     preDeployCommand: node scripts/setup-db.mjs
     startCommand: npm start
@@ -20,4 +20,4 @@ services:
 databases:
   - name: lacroix-db
     databaseName: lacroix
-    plan: free
+    plan: basic-256mb
