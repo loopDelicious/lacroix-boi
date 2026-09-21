@@ -3,7 +3,7 @@ services:
     name: lacroix
     runtime: node
     plan: starter
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     preDeployCommand: node scripts/setup-db.mjs
     startCommand: npm start
     healthCheckPath: /api/health
