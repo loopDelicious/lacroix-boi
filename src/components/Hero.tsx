@@ -183,7 +183,7 @@ export default function Hero() {
               className="relative aspect-[4/5]"
             >
               <Image
-                src="/images/hero-can.png"
+                src="/images/hero-can.jpg"
                 alt="An ice-cold can of LaCroix Boi sparkling water with a splash"
                 fill
                 priority

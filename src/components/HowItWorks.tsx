@@ -71,7 +71,7 @@ export default function HowItWorks() {
             <div className="overflow-hidden rounded-[2.5rem] border-2 border-ink shadow-[10px_10px_0_0_#16122b]">
               <div className="relative aspect-[16/8]">
                 <Image
-                  src="/images/courier.png"
+                  src="/images/courier.jpg"
                   alt="A LaCroix Boi courier cycling up a steep San Francisco hill with a crate of sparkling water"
                   fill
                   sizes="(min-width: 1024px) 64rem, 100vw"

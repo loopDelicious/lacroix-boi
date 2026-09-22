@@ -162,7 +162,7 @@ export default function Flavors({ flavors }: { flavors: Flavor[] }) {
           </div>
           <div className="relative min-h-72 border-t-2 border-cream/20 lg:border-t-0 lg:border-l-2">
             <Image
-              src="/images/boi-box.png"
+              src="/images/boi-box.jpg"
               alt="The Boi Box — a 24-can variety crate of colorful sparkling water"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
