@@ -118,6 +118,14 @@ try {
   `);
 
   await client.query(`
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id serial PRIMARY KEY,
+      email text NOT NULL UNIQUE,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+
+  await client.query(`
     CREATE TABLE IF NOT EXISTS orders (
       id serial PRIMARY KEY,
       order_code text NOT NULL UNIQUE,
