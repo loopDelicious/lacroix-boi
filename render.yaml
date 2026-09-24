@@ -2,6 +2,9 @@ services:
   - type: web
     name: lacroix
     runtime: node
+    repo: https://github.com/loopDelicious/lacroix-boi
+    branch: main
+    autoDeployTrigger: commit
     plan: starter
     buildCommand: npm ci --include=dev && npm run build
     preDeployCommand: node scripts/setup-db.mjs
