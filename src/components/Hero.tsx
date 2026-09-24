@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDown, Bike, MapPin, Star } from "lucide-react";
+import { ArrowDown, Bike, MapPin, Send, Star } from "lucide-react";
 import Bubbles from "@/components/Bubbles";
 
 function useStats() {
@@ -40,6 +40,17 @@ function CountUp({ target, className = "" }: { target: number; className?: strin
   );
 }
 
+const EMAIL_PATTERN =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+function validateAnnouncementEmail(raw: string): string | null {
+  const email = raw.trim();
+  if (!email) return "Enter an email and we'll send the announcement.";
+  if (email.length > 254) return "That email is too long.";
+  if (!EMAIL_PATTERN.test(email)) return "Enter a valid email, like you@sf.boi.";
+  return null;
+}
+
 function SpinBadge() {
   return (
     <div className="animate-spin-slow relative size-28 sm:size-32">
@@ -62,6 +73,10 @@ function SpinBadge() {
 export default function Hero() {
   const stats = useStats();
   const ref = useRef<HTMLDivElement>(null);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [joined, setJoined] = useState(false);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const yCan = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const yText = useTransform(scrollYProgress, [0, 1], [0, -60]);
@@ -126,17 +141,88 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.54, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-9 flex flex-wrap items-center gap-4"
+            className="mt-9 max-w-xl"
           >
-            <a
-              href="#flavors"
-              className="btn-punch rounded-full border-2 border-ink bg-coral px-7 py-3.5 font-display text-base font-extrabold text-ink shadow-[5px_5px_0_0_#16122b]"
-            >
-              Build my fizz — $6.99
-            </a>
+            <p className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
+              Coming soon to San Francisco
+            </p>
+            <p className="mt-1 text-sm text-ink-2">
+              Leave your email and we&apos;ll send the announcement when the bikes roll out.
+            </p>
+            {joined ? (
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-lime-pop px-5 py-3 font-display font-extrabold text-ink shadow-[4px_4px_0_0_#16122b]">
+                <Send className="size-4" /> You&apos;re on the list. We&apos;ll ping you.
+              </p>
+            ) : (
+              <form
+                className="mt-4"
+                noValidate
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const message = validateAnnouncementEmail(email);
+                  setEmailError(message);
+                  if (message) return;
+
+                  setSubmitting(true);
+                  try {
+                    const res = await fetch("/api/newsletter", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email: email.trim() }),
+                    });
+                    const data = (await res.json().catch(() => null)) as { error?: string } | null;
+                    if (!res.ok) {
+                      setEmailError(data?.error ?? "We couldn't save that just now. Try once more.");
+                      return;
+                    }
+                    setJoined(true);
+                  } catch {
+                    setEmailError("We couldn't save that just now. Try once more.");
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="hero-announcement-email" className="sr-only">
+                      Email for the San Francisco announcement
+                    </label>
+                    <input
+                      id="hero-announcement-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (emailError) setEmailError(validateAnnouncementEmail(e.target.value));
+                      }}
+                      placeholder="you@sf.boi"
+                      aria-invalid={emailError ? true : undefined}
+                      aria-describedby={emailError ? "hero-announcement-email-error" : undefined}
+                      className="w-full rounded-full border-2 border-ink bg-cream px-5 py-3.5 font-mono text-sm text-ink outline-none placeholder:text-ink/40 focus:border-coral"
+                    />
+                    {emailError ? (
+                      <p id="hero-announcement-email-error" className="mt-2 px-2 text-sm font-medium text-coral-deep">
+                        {emailError}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-punch inline-flex shrink-0 items-center justify-center gap-2 rounded-full border-2 border-ink bg-coral px-6 py-3.5 font-display text-base font-extrabold text-ink shadow-[5px_5px_0_0_#16122b] disabled:cursor-wait disabled:opacity-70"
+                  >
+                    <Send className="size-4" />
+                    {submitting ? "Saving…" : "Get the announcement"}
+                  </button>
+                </div>
+              </form>
+            )}
             <a
               href="#how"
-              className="btn-punch inline-flex items-center gap-2 rounded-full border-2 border-ink bg-cream px-7 py-3.5 font-display text-base font-extrabold text-ink shadow-[5px_5px_0_0_#16122b]"
+              className="btn-punch mt-4 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-cream px-7 py-3.5 font-display text-base font-extrabold text-ink shadow-[5px_5px_0_0_#16122b]"
             >
               How it works <ArrowDown className="size-4" />
             </a>
@@ -180,15 +266,15 @@ export default function Hero() {
             <motion.div
               animate={{ y: [0, -14, 0], rotate: [0, -1.2, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="relative aspect-[4/5]"
+              className="relative aspect-[4/3]"
             >
               <Image
-                src="/images/hero-can.jpg"
-                alt="An ice-cold can of LaCroix Boi sparkling water with a splash"
+                src="/images/boi-twink.png"
+                alt="A courier hauling a crate of LaCroix up a San Francisco hill"
                 fill
                 priority
                 sizes="(min-width: 1024px) 42vw, 90vw"
-                className="object-cover mix-blend-multiply"
+                className="object-cover"
               />
             </motion.div>
           </motion.div>

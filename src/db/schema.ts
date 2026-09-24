@@ -14,6 +14,12 @@ export const products = pgTable("products", {
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderCode: text("order_code").notNull().unique(),
